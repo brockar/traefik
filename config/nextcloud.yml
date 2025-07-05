@@ -1,0 +1,74 @@
+http:
+  routers:
+    nextcloud:
+      rule: "Host(`nc.domain.xyz`)"
+      entryPoints:
+        - "websecure"
+      service: "nextcloud"
+      tls:
+        certResolver: "cloudflare"
+      middlewares:
+        - "crowdsec"
+        - "ar-only"
+        - "nextcloud-headers"
+        - "nextcloud-redirectscheme"
+
+    # Special route for .well-known
+    nextcloud-wellknown:
+      rule: "Host(`nc.domain.xyz`) && (PathPrefix(`/.well-known`) || PathPrefix(`/ocm-provider`) || PathPrefix(`/ocs-provider`))"
+      entryPoints:
+        - "websecure"
+      service: "nextcloud"
+      tls:
+        certResolver: "cloudflare"
+    nextcloud-webdav:
+      rule: "Host(`nc.domain.xyz`) && (PathPrefix(`/remote.php/dav`) || PathPrefix(`/public.php/webdav`))"
+      entryPoints:
+        - "websecure"
+      service: "nextcloud"
+      tls:
+        certResolver: "cloudflare"
+      middlewares:
+        - "crowdsec"
+        - "ar-only"
+        - "nextcloud-headers"
+        - "nextcloud-buffering"
+  services:
+    nextcloud:
+      loadBalancer:
+        servers:
+          - url: "http://nextcloud-aio-apache:11000"
+        passHostHeader: true
+    nextcloudtruewebdav:
+      loadBalancer:
+        servers:
+          - url: "http://nextcloud-aio-apache:11000"
+        passHostHeader: true
+
+  middlewares:
+    nextcloud-headers:
+      headers:
+        customRequestHeaders:
+          X-Forwarded-Proto: "https"
+        sslRedirect: true
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 31536000
+        customFrameOptionsValue: "SAMEORIGIN"
+        contentTypeNosniff: true
+        browserXssFilter: true
+        referrerPolicy: "strict-origin-when-cross-origin"
+        forceSTSHeader: true
+
+    nextcloud-redirectscheme:
+      redirectScheme:
+        scheme: "https"
+        permanent: true
+
+    nextcloud-buffering:
+      buffering:
+        maxRequestBodyBytes: 10737418240 # 10GB
+        maxResponseBodyBytes: 10737418240 # 10GB
+        memRequestBodyBytes: 10485760 # 10MB
+        memResponseBodyBytes: 10485760 # 10MB
+        retryExpression: "IsNetworkError() && Attempts() < 5"
