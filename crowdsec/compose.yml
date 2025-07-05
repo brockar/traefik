@@ -1,0 +1,27 @@
+# https://github.com/TechnoBoom/YT-Files/blob/master/IDS-IPS-Crowdsec-Traefik/README.md
+# https://www.youtube.com/watch?v=rkYrpzHakj8
+services:
+  crowdsec:
+    image: crowdsecurity/crowdsec:latest
+    container_name: crowdsec
+    environment:
+      GID: "${GID-1001}" # with `id -g` you can get your GID
+      COLLECTIONS: "crowdsecurity/linux crowdsecurity/traefik crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-generic-rules"
+    volumes:
+      - ./config/acquis.yaml:/etc/crowdsec/acquis.yaml
+      - crowdsec-db:/var/lib/crowdsec/data/
+      - crowdsec-config:/etc/crowdsec/
+      - traefik_traefik_logs1:/var/log/traefik/:ro
+    networks:
+      - crowd1 # internal crowdsec + traefik network
+    restart: unless-stopped
+
+networks:
+  crowd1:
+    external: true
+
+volumes:
+  crowdsec-db:
+  crowdsec-config:
+  traefik_traefik_logs1:
+    external: true

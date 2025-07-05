@@ -1,0 +1,88 @@
+# traefik/config/dynamic.yml
+http:
+  middlewares:
+    secureHeaders:
+      headers:
+        accessControlAllowMethods:
+          - GET
+          - OPTIONS
+          - PUT
+        accessControlMaxAge: 100
+        hostsProxyHeaders:
+          - "X-Forwarded-Host"
+        referrerPolicy: "same-origin"
+        sslRedirect: true
+        stsSeconds: 31536000
+        stsIncludeSubdomains: true
+        stsPreload: true
+        forceSTSHeader: true
+        contentTypeNosniff: true
+        browserXssFilter: true
+        customFrameOptionsValue: SAMEORIGIN
+    # Argentina + VPS
+    ar-only:
+      plugin:
+        geoblock:
+          allowedIPAddresses:
+            # -  VPS IP # If isnt on your country.
+          countries:
+            - AR # your country code (https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)
+          silentStartUp: true
+          allowLocalRequests: true
+          logLocalRequests: true
+          logAllowedRequests: false
+          logApiRequests: false
+          api: "https://get.geojs.io/v1/ip/country/{ip}"
+          apiTimeoutMs: 500
+          cacheSize: 25
+          forceMonthlyUpdate: true
+          allowUnknownCountries: false
+          unknownCountryApiResponse: "nil"
+
+    crowdsec:
+      plugin:
+        bouncer:
+          enabled: true
+          logLevel: INFO
+          updateIntervalSeconds: 15
+          updateMaxFailure: 0
+          defaultDecisionSeconds: 15
+          httpTimeoutSeconds: 10
+          crowdsecMode: stream
+          crowdsecAppsecEnabled: true
+          crowdsecAppsecHost: crowdsec:7422
+          crowdsecAppsecFailureBlock: true
+          crowdsecAppsecUnreachableBlock: true
+          crowdsecLapiKey: ##REPLACE_API_KEY##  # Replace CrowdSec API key (docker exec crowdsec cscli bouncers add crowdsecBouncer)
+          #          crowdsecLapiKeyFile: /etc/traefik/cs-privateKey-foo
+          crowdsecLapiHost: crowdsec:8080
+          crowdsecLapiScheme: http
+          forwardedHeadersTrustedIPs:
+            # - YOUR.VPS.IP # Reverse Proxy IP address
+          clientTrustedIPs:
+            - 10.0.0.216/24 # Internal LAN IP addresses
+
+    default-whitelist:
+      IPAllowList:
+        sourceRange:
+          - "10.0.0.0/24"
+
+    secured:
+      chain:
+        middlewares:
+          - crowdsec
+          - default-whitelist
+          - secureHeaders
+
+tls:
+  options:
+    default:
+      minVersion: "VersionTLS12"
+      maxVersion: "VersionTLS13"
+      cipherSuites:
+        - "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
+        - "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305"
+        - "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
+      curvePreferences:
+        - CurveP521
+        - CurveP384

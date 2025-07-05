@@ -1,0 +1,28 @@
+---
+services:
+  traefik:
+    image: docker.io/library/traefik:v3.4.3
+    container_name: traefik
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /run/docker.sock:/run/docker.sock:ro
+      - ./config/:/etc/traefik/
+      - ./certs/:/var/traefik/certs/:rw
+      - traefik_logs1:/var/log/traefik
+    environment:
+      - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
+    networks:
+      - proxy
+      - crowd1
+    restart: unless-stopped
+
+volumes:
+  traefik_logs1:
+
+networks:
+  proxy:
+    external: true # <-- (Optional) Change this to false if you want to create a new network
+  crowd1:
+    external: true

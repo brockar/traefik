@@ -1,0 +1,23 @@
+services:
+  whoami:
+    image: traefik/whoami
+    container_name: whoami
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      # Basic routing
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.app.entrypoints=websecure"
+      - "traefik.http.routers.app.rule=Host(`app.domain.xyz`)"
+      - "traefik.http.routers.app.tls=true"
+      - "traefik.http.routers.app.tls.certresolver=cloudflare"
+      - "traefik.http.routers.app.middlewares=secureHeaders"
+      - "traefik.http.routers.app.middlewares=crowdsec@file"
+      # For Argentina-only apps
+      - "traefik.http.routers.app.middlewares=ar-only@file"
+
+networks:
+  proxy:
+    external: true

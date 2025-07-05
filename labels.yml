@@ -1,0 +1,20 @@
+labels:
+  # Basic routing
+  - "traefik.enable=true"
+  - "traefik.docker.network=proxy"
+  - "traefik.http.routers.app.entrypoints=websecure"
+  - "traefik.http.routers.app.rule=Host(`app.domain.xyz`)"
+  - "traefik.http.routers.app.tls=true"
+  - "traefik.http.routers.app.tls.certresolver=cloudflare"
+  - "traefik.http.routers.app.middlewares=secureHeaders"
+  - "traefik.http.routers.app.middlewares=crowdsec@file"
+
+  # Custom port (if not 80)
+  - "traefik.http.services.app.loadbalancer.server.port=3000"
+  # Multiple domains
+  - "traefik.http.routers.app.rule=Host(`app.domain.xyz`) || Host(`www.app.domain.xyz`)"
+  # Path-based routing
+  - "traefik.http.routers.app.rule=Host(`domain.xyz`) && PathPrefix(`/app`)"
+
+  # For Argentina-only apps
+  - "traefik.http.routers.app.middlewares=ar-only@file"
