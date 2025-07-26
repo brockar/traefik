@@ -1,7 +1,7 @@
 http:
   routers:
     nextcloud:
-      rule: "Host(`nc.domain.xyz`)"
+      rule: "Host(`nc.domain.com`)"
       entryPoints:
         - "websecure"
       service: "nextcloud"
@@ -9,20 +9,21 @@ http:
         certResolver: "cloudflare"
       middlewares:
         - "crowdsec"
-        - "ar-only"
+        # - "ar-only"
         - "nextcloud-headers"
         - "nextcloud-redirectscheme"
 
     # Special route for .well-known
     nextcloud-wellknown:
-      rule: "Host(`nc.domain.xyz`) && (PathPrefix(`/.well-known`) || PathPrefix(`/ocm-provider`) || PathPrefix(`/ocs-provider`))"
+      rule: "Host(`nc.domain.com`) && (PathPrefix(`/.well-known`) || PathPrefix(`/ocm-provider`) || PathPrefix(`/ocs-provider`))"
       entryPoints:
         - "websecure"
       service: "nextcloud"
       tls:
         certResolver: "cloudflare"
+
     nextcloud-webdav:
-      rule: "Host(`nc.domain.xyz`) && (PathPrefix(`/remote.php/dav`) || PathPrefix(`/public.php/webdav`))"
+      rule: "Host(`nc.domain.com`) && (PathPrefix(`/remote.php/dav`) || PathPrefix(`/public.php/webdav`))"
       entryPoints:
         - "websecure"
       service: "nextcloud"
@@ -30,20 +31,45 @@ http:
         certResolver: "cloudflare"
       middlewares:
         - "crowdsec"
-        - "ar-only"
+        # - "ar-only"
         - "nextcloud-headers"
         - "nextcloud-buffering"
+
+    collabora:
+      rule: "Host(`nc.domain.com`) && (PathPrefix(`/browser`) || PathPrefix(`/hosting/discovery`) || PathPrefix(`/hosting/capabilities`) || PathPrefix(`/cool/`) || PathPrefix(`/lool/`))"
+      entrypoints:
+        - "websecure"
+      service: collabora
+      middlewares:
+        - "crowdsec"
+        # - "ar-only"
+        - "collabora-headers"
+      tls:
+        certResolver: "cloudflare"
+
+    collabora-ws:
+      rule: "Host(`nc.domain.com`) && (PathPrefix(`/cool/`) || PathPrefix(`/lool/`)) && Header(`Connection`, `upgrade`) && Header(`Upgrade`, `websocket`)"
+      entrypoints:
+        - "websecure"
+      service: collabora
+      middlewares:
+        - "crowdsec"
+        # - "ar-only"
+        - "collabora-ws-headers"
+      tls:
+        certResolver: "cloudflare"
+
   services:
     nextcloud:
       loadBalancer:
         servers:
           - url: "http://nextcloud-aio-apache:11000"
         passHostHeader: true
-    nextcloudtruewebdav:
+
+    collabora:
       loadBalancer:
         servers:
-          - url: "http://nextcloud-aio-apache:11000"
-        passHostHeader: true
+          - url: "http://nextcloud-aio-collabora:9980"
 
   middlewares:
     nextcloud-headers:
@@ -72,3 +98,54 @@ http:
         memRequestBodyBytes: 10485760 # 10MB
         memResponseBodyBytes: 10485760 # 10MB
         retryExpression: "IsNetworkError() && Attempts() < 5"
+
+    collabora-headers:
+      headers:
+        customRequestHeaders:
+          X-Forwarded-Proto: "https"
+          X-Forwarded-For: ""
+          X-Forwarded-Host: ""
+          Host: "nc.domain.com"
+        customResponseHeaders:
+          X-Frame-Options: "SAMEORIGIN"
+          X-Content-Type-Options: "nosniff"
+
+    collabora-ws-headers:
+      headers:
+        customRequestHeaders:
+          X-Forwarded-Proto: "https"
+          Connection: "upgrade"
+          Upgrade: "websocket"
+
+udp:
+  routers:
+    turn-router:
+      entryPoints:
+        - stun-turn
+      service: nextcloud-turn-udp
+      middlewares:
+        - "crowdsec"
+        # - "ar-only"
+
+  services:
+    nextcloud-turn-udp:
+      loadBalancer:
+        servers:
+          - address: "nextcloud-aio-talk:3478"
+
+tcp:
+  routers:
+    turns-router:
+      rule: "HostSNI(`*`)"
+      entryPoints:
+        - turns
+      service: nextcloud-turns-tcp
+      middlewares:
+        - "crowdsec"
+        # - "ar-only"
+
+  services:
+    nextcloud-turns-tcp:
+      loadBalancer:
+        servers:
+          - address: "nextcloud-aio-talk:5349"

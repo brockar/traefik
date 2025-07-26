@@ -6,6 +6,9 @@ services:
     ports:
       - 80:80
       - 443:443
+      # Ports for TURN server (nextcloud-aio)
+      # - "3479:3479/udp"
+      # - "5350:5350/tcp"
     volumes:
       - /run/docker.sock:/run/docker.sock:ro
       - ./config/:/etc/traefik/
@@ -16,6 +19,7 @@ services:
     networks:
       - proxy
       - crowd1
+      # - nextcloud-aio
     restart: unless-stopped
 
 volumes:
@@ -26,3 +30,6 @@ networks:
     external: true # <-- (Optional) Change this to false if you want to create a new network
   crowd1:
     external: true
+  # if use nextcloud-aio, uncomment the next line
+  # nextcloud-aio:
+  #   external: true
