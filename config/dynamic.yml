@@ -62,16 +62,10 @@ http:
           clientTrustedIPs:
             - 10.0.0.216/24 # Internal LAN IP addresses
 
-    default-whitelist:
-      IPAllowList:
-        sourceRange:
-          - "10.0.0.0/24"
-
     secured:
       chain:
         middlewares:
           - crowdsec
-          - default-whitelist
           - secureHeaders
 
 tls:
