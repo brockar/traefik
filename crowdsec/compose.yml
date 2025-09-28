@@ -13,11 +13,11 @@ services:
       - crowdsec-config:/etc/crowdsec/
       - traefik_traefik_logs1:/var/log/traefik/:ro
     networks:
-      - crowd1 # internal crowdsec + traefik network
+      - crowd # internal crowdsec + traefik network
     restart: unless-stopped
 
 networks:
-  crowd1:
+  crowd:
     external: true
 
 volumes:

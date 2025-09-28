@@ -1,6 +1,7 @@
 # Traefik + CrowdSec + GeoBlock Setup
 
 ## Prerequisites
+
 1. Domain with Cloudflare DNS
 2. Docker and Docker Compose installed
 3. Basic understanding of Docker networking
@@ -8,7 +9,9 @@
 ## Setup Instructions
 
 ### 1. Environment Configuration
+
 Copy the environment template and configure:
+
 ```bash
 cp .env.example .env
 ```
@@ -17,7 +20,8 @@ Edit `.env` and add your Cloudflare API token
 
 ### 2. Manual Configuration Required
 
-#### Edit `config/traefik.yml`:
+#### Edit `config/traefik.yml`
+
 ```yaml
 certificatesResolvers:
   cloudflare:
@@ -25,7 +29,8 @@ certificatesResolvers:
       email: email@domain.com # <-- Change this to your email
 ```
 
-#### Edit `config/dynamic.yml`:
+#### Edit `config/dynamic.yml`
+
 ```yaml
 # Update geoblock configuration
 ar-only:
@@ -49,7 +54,7 @@ crowdsec:
 
 ```bash
 docker network create proxy
-docker network create crowd1
+docker network create crowd
 chmod 600 ./certs
 
 cd crowdsec
