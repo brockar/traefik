@@ -11,7 +11,7 @@ services:
       - ./config/acquis.yaml:/etc/crowdsec/acquis.yaml
       - crowdsec-db:/var/lib/crowdsec/data/
       - crowdsec-config:/etc/crowdsec/
-      - traefik_traefik_logs1:/var/log/traefik/:ro
+      - traefik_traefik_logs:/var/log/traefik/:ro
     networks:
       - crowd # internal crowdsec + traefik network
     restart: unless-stopped
@@ -23,5 +23,5 @@ networks:
 volumes:
   crowdsec-db:
   crowdsec-config:
-  traefik_traefik_logs1:
+  traefik_traefik_logs:
     external: true

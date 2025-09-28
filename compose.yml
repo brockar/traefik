@@ -13,7 +13,7 @@ services:
       - /run/docker.sock:/run/docker.sock:ro
       - ./config/:/etc/traefik/
       - ./certs/:/var/traefik/certs/:rw
-      - traefik_logs1:/var/log/traefik
+      - traefik_logs:/var/log/traefik
     environment:
       - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
     networks:
@@ -23,7 +23,7 @@ services:
     restart: unless-stopped
 
 volumes:
-  traefik_logs1:
+  traefik_logs:
 
 networks:
   proxy:
