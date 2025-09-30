@@ -6,8 +6,7 @@ labels:
   - "traefik.http.routers.app.rule=Host(`app.domain.xyz`)"
   - "traefik.http.routers.app.tls=true"
   - "traefik.http.routers.app.tls.certresolver=cloudflare"
-  - "traefik.http.routers.app.middlewares=secureHeaders"
-  - "traefik.http.routers.app.middlewares=crowdsec@file"
+  - "traefik.http.routers.app.middlewares=secureHeaders@file,crowdsec@file"
 
   # Custom port (if not 80)
   - "traefik.http.services.app.loadbalancer.server.port=3000"
@@ -17,4 +16,4 @@ labels:
   - "traefik.http.routers.app.rule=Host(`domain.xyz`) && PathPrefix(`/app`)"
 
   # For Argentina-only apps
-  - "traefik.http.routers.app.middlewares=ar-only@file"
+  - "traefik.http.routers.app.middlewares=secureHeaders@file,crowdsec@file,ar-only@file"
