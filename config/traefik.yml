@@ -12,7 +12,6 @@ global:
 # --> (Optional) Enable accesslog here
 #accessLog:
 # <--
-
 api:
   dashboard: false
   insecure: false
@@ -53,10 +52,9 @@ certificatesResolvers:
           - "8.8.8.8:53"
 # <--
 
-# --> Log for crowdsec
 log:
   level: "INFO"
-  filePath: "/var/log/traefik/traefik.log"
+# --> Log for crowdsec
 accessLog:
   filePath: "/var/log/traefik/access.log"
 # <--
