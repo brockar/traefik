@@ -1,0 +1,23 @@
+.env.*
+!.env.example
+
+# Traefik 
+certs/
+acme.json
+config/acme.json
+config/letsencrypt/
+*.crt
+*.key
+*.pem
+
+# CrowdSec 
+crowdsec/config/data/
+crowdsec/config/etc/
+
+# Docker 
+docker-compose.override.yml
+docker-data/
+
+*.log
+*.pid
+*.db
