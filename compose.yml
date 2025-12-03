@@ -1,25 +1,22 @@
 ---
 services:
   traefik:
-    image: docker.io/library/traefik:v3.5
+    image: docker.io/library/traefik:v3.6.2
     container_name: traefik
     ports:
       - 80:80
       - 443:443
-      # Ports for TURN server (nextcloud-aio)
-      # - "3479:3479/udp"
-      # - "5350:5350/tcp"
     volumes:
       - /run/docker.sock:/run/docker.sock:ro
       - ./config/:/etc/traefik/
       - ./certs/:/var/traefik/certs/:rw
       - traefik_logs:/var/log/traefik
     environment:
-      - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
+      - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN} 
+      - TZ=America/Mendoza # Change this to your timezone 
     networks:
-      - proxy
-      - crowd
-      # - nextcloud-aio
+      - proxy # for expose docker containers 
+      - crowd # for crowdsec 
     restart: unless-stopped
 
 volumes:
@@ -30,6 +27,3 @@ networks:
     external: true # <-- (Optional) Change this to false if you want to create a new network
   crowd:
     external: true
-  # if use nextcloud-aio, uncomment the next line
-  # nextcloud-aio:
-  #   external: true

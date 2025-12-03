@@ -5,13 +5,13 @@ services:
     image: crowdsecurity/crowdsec:latest
     container_name: crowdsec
     environment:
-      GID: "${GID-1001}" # with `id -g` you can get your GID
+      GID: "${GID-1001}" # Defining user file permissions
       COLLECTIONS: "crowdsecurity/linux crowdsecurity/traefik crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-generic-rules"
     volumes:
-      - ./config/acquis.yaml:/etc/crowdsec/acquis.yaml
+      - ./config/acquis.yaml:/etc/crowdsec/acquis.yaml 
       - crowdsec-db:/var/lib/crowdsec/data/
       - crowdsec-config:/etc/crowdsec/
-      - traefik_traefik_logs:/var/log/traefik/:ro
+      - traefik_traefik_logs:/var/log/traefik/:ro # docker vol for traefik logs
     networks:
       - crowd # internal crowdsec + traefik network
     restart: unless-stopped
@@ -23,5 +23,5 @@ networks:
 volumes:
   crowdsec-db:
   crowdsec-config:
-  traefik_traefik_logs:
+  traefik_traefik_logs: # docker vol for traefik logs (traefik_ is the name of traefik stack)
     external: true

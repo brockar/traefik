@@ -1,4 +1,3 @@
-# traefik/config/dynamic.yml
 http:
   middlewares:
     secureHeaders:
@@ -19,14 +18,15 @@ http:
         contentTypeNosniff: true
         browserXssFilter: true
         customFrameOptionsValue: SAMEORIGIN
-    # Argentina + VPS
+
+    # Argentina + OCI
     ar-only:
       plugin:
         geoblock:
           allowedIPAddresses:
-            # -  VPS IP # If isnt on your country.
+            - your.vps.ip # ang v4
           countries:
-            - AR # your country code (https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)
+            - AR
           silentStartUp: true
           allowLocalRequests: true
           logLocalRequests: true
@@ -53,14 +53,14 @@ http:
           crowdsecAppsecHost: crowdsec:7422
           crowdsecAppsecFailureBlock: true
           crowdsecAppsecUnreachableBlock: true
-          crowdsecLapiKey: ##REPLACE_API_KEY##  # Replace CrowdSec API key (docker exec crowdsec cscli bouncers add crowdsecBouncer)
-          #          crowdsecLapiKeyFile: /etc/traefik/cs-privateKey-foo
+          crowdsecLapiKey: CHANGE_THIS # Replace CrowdSec API key (docker exec crowdsec cscli bouncers add crowdsecBouncer)
+          # crowdsecLapiKeyFile: /etc/traefik/cs-privateKey-foo
           crowdsecLapiHost: crowdsec:8080
           crowdsecLapiScheme: http
           forwardedHeadersTrustedIPs:
-            # - YOUR.VPS.IP # Reverse Proxy IP address
+            - YOUR.IP/24 # Reverse Proxy IP address
           clientTrustedIPs:
-            - 10.0.0.216/24 # Internal LAN IP addresses
+            - YOUR.LOCAL.IP/24 # Internal LAN IP addresses
 
     secured:
       chain:
@@ -72,11 +72,4 @@ tls:
   options:
     default:
       minVersion: "VersionTLS12"
-      maxVersion: "VersionTLS13"
-      cipherSuites:
-        - "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
-        - "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305"
-        - "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
-      curvePreferences:
-        - CurveP521
-        - CurveP384
+      sniStrict: true

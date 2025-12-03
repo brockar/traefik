@@ -3,20 +3,20 @@ global:
   checkNewVersion: false
   sendAnonymousUsage: true
 
-# --> (Optional) Change log level and format here
+# --> (Optional) Change log level and format here ...
 #     - level: [TRACE, DEBUG, INFO, WARN, ERROR, FATAL]
 #log:
 # level: DEBUG
 # <--
 
-# --> (Optional) Enable accesslog here
+# --> (Optional) Enable accesslog here ...
 #accessLog:
 # <--
+
 api:
   dashboard: false
   insecure: false
 
-# -- Change EntryPoints here
 entryPoints:
   web:
     address: :80
@@ -26,7 +26,6 @@ entryPoints:
           to: websecure
           scheme: https
           permanent: true
-    # <--
   websecure:
     address: :443
     http:
@@ -34,23 +33,21 @@ entryPoints:
       #       - "crowdsec@file"
       tls:
         options: default
-# <--
+        certResolver: cloudflare
 
-# -- Configure your CertificateResolver here
+# -- Configure your CertificateResolver here...
 certificatesResolvers:
   cloudflare:
     acme:
-      tlsChallenge: {}
-      email: mail@domain.com # <-- Change this to your email
+      email: your.mail@domain.com # <-- Change this to your email
       storage: /var/traefik/certs/cloudflare-acme.json
       caServer: "https://acme-v02.api.letsencrypt.org/directory"
       dnsChallenge:
         provider: cloudflare # <-- (Optional) Change this to your DNS provider
-        delayBeforeCheck: 0
+        delayBeforeCheck: "0"
         resolvers:
           - "1.1.1.1:53"
           - "8.8.8.8:53"
-# <--
 
 log:
   level: "INFO"
@@ -63,15 +60,12 @@ accessLog:
 # serversTransport:
 #   insecureSkipVerify: true
 # <--
-
-# --> Providers
 providers:
   docker:
     exposedByDefault: false # <-- (Optional) Change this to true if you want to expose all services
     # Specify discovery network - This ensures correct name resolving and possible issues with containers, that are in multiple networks.
     # E.g. Database container in a separate network and a container in the frontend and database network.
-    network:
-      - proxy
+    network: proxy
   file:
     directory: /etc/traefik
     watch: true
@@ -82,5 +76,4 @@ experimental:
       version: "v0.3.3"
     bouncer:
       moduleName: "github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin"
-      version: "v1.4.4"
-# <--
+      version: "v1.4.6"

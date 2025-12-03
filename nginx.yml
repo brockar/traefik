@@ -1,0 +1,18 @@
+services:
+  nginx:
+    container_name: nginx
+    image: nginx:latest
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.nginx.loadbalancer.server.port=80
+      - traefik.http.routers.nginx.entrypoints=websecure
+      - traefik.http.routers.nginx.rule=Host(`nginx.mguz.xyz`)
+      - traefik.http.routers.nginx.tls=true
+      - traefik.http.routers.nginx.tls.certresolver=cloudflare
+      - traefik.http.routers.nginx.service=nginx
+networks:
+  proxy:
+    external: true
